@@ -15,7 +15,12 @@ includelib \masm32\Irvine\Kernel32.lib
 
 .DATA
 contador DWord 0 ; Se usa como contador en la función eleva
+primera DWORD ? ; Primera mitad del denomindador
+segunda DWORD ? ; Primera mitad del numerador
+auxiliar DWORD ? ; Auxiliar en el metodo factorial 
+numerador REAL8 ? ; Para guardar el numerador antes de dividir
 x REAL8 5.83 ; Esto es temporal en lo que funciona Write
+k DWORD ? ; Es la K de la formula
 
 .CODE
 ; Procedimiento principal
@@ -23,20 +28,30 @@ main PROC
     call Clrscr
     ; =============================== Bienvenida e input de usuario =====================================
     mWrite "Hola, bienvenida al programa!  "
+    call Crlf
     mWrite "Si quieres obtener el valor de la funcion seno ingresando grados, ingresa el numero 1 "
+    call Crlf
     mWrite "Si quieres obtener el valor de la funcion seno ingresando radianes, ingresa el numero 2 "
+    call Crlf
     mWrite "Si quieres obtener una tabla de valores de la funcion seno, ingresa el numero 3 "
     call Crlf
 
     ; ============================== Llamada a la función eleva ======================================
     ; Le pasa en el stack de operación la potencia a la que se eleva y el valor base y la respuesta se pasan por el stack de FPU
-    mov ebx, 10 ; Esto es la potencia a la que se va a elevar
+    mov ebx, 4 ; Esto es la K (iteracion)
+    mov k, ebx
+    fld x
+    fld x
     push ebx
-    fld x
-    fld x
     call eleva
-    fst numerador
-    call WriteFloat
+    push k
+    call checaParidad
+    pop eax
+    .IF eax == 1
+        FCHS
+    .ENDIF
+    fst numerador ; Con esto ya tienes el numerador completo en la variable numerador
+    call Crlf
 
     ; ============================== Llamada a la función factorial ======================================
     ; La llama con el valor que se pushea y regresa en primera la mitad menos significativa y en segunda la mitad más significativa
@@ -51,19 +66,25 @@ main ENDP
 
 ; =============================== Procedimiento para elevar un número flotante a una potencia entera ===================================================
 eleva PROC
-; Recibe un flotante REAL8 y regresa la respuesta en el mismo formato. El valor base y la respuesta se envían a través del stack FPU
+; Recibe un flotante REAL8 y regresa la respuesta en el mismo formato. Comunicación a través del stack de ejecución de ida y del FPU de regreso 
 ; Receives: REAL8
 ; Returns: REAL8
 ; Requires: contador DWORD
 ;---------------------------------------------------------
     
     pop ecx ; Registro para regresar
-    pop ebx ; Potencia a la que se eleva
+    pop ebx ; K de la iteración
+    mov eax, ebx
+    mov edx, 2
+    mul edx
+    inc eax
+    mov esi, eax ;  2k+1
     mov contador, 1
-    .WHILE contador < ebx
+    .WHILE contador < esi
         fmul ST(0), ST(1)
     inc contador
     .ENDW 
+
     push ecx
     RET
 eleva ENDP
@@ -75,16 +96,16 @@ checaParidad PROC
 ; Returns: WORD
 ; Requires: Nothing
 ;---------------------------------------------------------
-    pop ecx
-    pop AX
-    test AX, 1
-    mov BX, 0
+    pop ecx ; Dirección de regreso
+    pop eax ; Palabra a evaluar
+    test eax, 1
+    mov ebx, 0
     JNZ target
     jmp fin
 target:
-    mov BX, 1
+    mov ebx, 1
 fin:
-    push BX
+    push ebx
     push ecx
 RET
 checaParidad ENDP
