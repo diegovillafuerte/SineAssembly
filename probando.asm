@@ -17,14 +17,77 @@ grande QWORD ?
 denominador REAL8 ?
 resParcial REAL8 ?
 resultado REAL8 0.0
-definicion DWORD ?
+definicion DWORD 8
+pasos DWORD 390
+paso REAL8 0.2617993877
+cero REAL8 0.0
 
 .code
 main PROC
     finit   ; starts up the FPU
 
-    mov ebx, 8
-    mov definicion, 8
+    ; =============================== Bienvenida e input de usuario =====================================
+    mWrite "Hola, bienvenida al programa!  "
+    call Crlf
+    mWrite "Si quieres obtener el valor de la funcion seno ingresando radiantes, ingresa el numero 1 "
+    call Crlf
+    mWrite "Si quieres obtener el valor de la funcion seno ingresando grados, ingresa el numero 2 "
+    call Crlf
+    mWrite "Si quieres obtener una tabla de valores de la funcion seno, ingresa el numero 3 "
+    call Crlf
+error:
+    call ReadInt
+    .IF eax == 1
+        fld x
+        call seno
+        fst resultado
+        call Crlf
+        mWrite "El resultado es: "
+        call WriteFloat
+        call Crlf
+    .ELSEIF eax == 2
+        fld x
+        call seno
+        fst resultado
+        call Crlf
+        mWrite "El resultado es: "
+        call WriteFloat
+        call Crlf
+    .ELSEIF eax == 3
+        mov ebp,30
+        fld paso
+        .WHILE ebp < pasos
+            fstp x
+            fld x
+            call seno
+            call Crlf
+            mWrite "El seno de  "
+            mov eax, ebp
+            call WriteInt
+            mWrite " grados, es: "
+            call WriteFloat
+            fstp resultado
+            call Crlf
+            fld cero ; Estas dos para hacer al resultado 0 otra vez
+            fstp resultado 
+            add ebp, 30
+            fadd paso
+        .ENDW
+    .ELSE
+        mWrite "Opcion invalida, porfavor vuelve a intentarlo"
+        call Crlf
+        jmp error
+    .ENDIF
+    ; ========================= Llamar a la función seno con el parametro x ====================
+    
+    
+
+    exit	
+main ENDP
+
+;============================== Procedimiento general para calcular un sen en radianes ===============
+seno PROC
+    pop edi
     mov ebx, 0
     .WHILE ebx < definicion
         ; ============================== Llamada a la función eleva ======================================
@@ -41,7 +104,6 @@ main PROC
             FCHS
         .ENDIF
         fst numerador ; Con esto ya tienes el numerador completo en la variable numerador
-        call Crlf
 
         ; ============================== Llamada a la función factorial ======================================
         ; La llama con el valor que se pushea y regresa en primera la mitad menos significativa y en segunda la mitad más significativa
@@ -56,7 +118,6 @@ main PROC
         mov DWORD PTR [grande + 4], eax
         fild grande
         fst denominador ; Con esto ya tienes el denominador completo en la variable numerador
-        call crlf
 
         ; ============================= División de dos reales ==============================================
         fdiv ST(1), ST(0)
@@ -65,16 +126,16 @@ main PROC
 
         fld resultado
         fadd resParcial
-        call ShowFPUStack
         fstp resultado
         fstp st(0)
         inc ebx
         
     .ENDW
+    fld resultado
+    push edi
+RET
+seno ENDP
 
-
-    exit	
-main ENDP
 
 ;============================== Procedimiento para calcular el factorial de un número menor o igual a 18 ===============
 factorial PROC

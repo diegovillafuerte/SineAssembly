@@ -14,15 +14,8 @@ denominador REAL8 ?
 .CODE
 main PROC
     finit
-    mov eax, segunda
-    mov DWORD PTR grande, eax
-    mov eax, primera
-    mov DWORD PTR [grande + 4], eax
-    fild grande
-    call ShowFPUStack
-    fst denominador
-    fld denominador
-    call ShowFPUStack
+    mov 0, segunda
+
     
     exit	
 main ENDP
