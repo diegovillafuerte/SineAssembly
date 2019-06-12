@@ -11,25 +11,40 @@ primera DWORD ? ; Primera mitad del denomindador
 segunda DWORD ? ; Primera mitad del numerador
 auxiliar DWORD ? ; Auxiliar en el metodo factorial 
 numerador REAL8 ? ; Para guardar el numerador antes de dividir
-x REAL8 5.83 ; Esto es temporal en lo que funciona Write
+x REAL8 ? ; Esto es temporal en lo que funciona Write
+y REAL8 ? ; Input temporal para grados
 k DWORD ? ; Es la K de la formula
 grande QWORD ?
 denominador REAL8 ?
 resParcial REAL8 ?
 resultado REAL8 0.0
-definicion DWORD 8
-pasos DWORD 390
-paso REAL8 0.2617993877
+definicion DWORD 10
+pasos DWORD 361
+paso REAL8 ?
+aux REAL8 12.0
 cero REAL8 0.0
+pi REAL8 3.14159265359
+halfCircle REAL8 180.0
+degreesRadians REAL8 ?
 
 .code
 main PROC
     finit   ; starts up the FPU
+    fld pi
+    fdiv halfCircle
+    fstp degreesRadians
+
+    fld pi
+    fdiv aux
+    fstp paso
+
+    finit
+
 
     ; =============================== Bienvenida e input de usuario =====================================
     mWrite "Hola, bienvenida al programa!  "
     call Crlf
-    mWrite "Si quieres obtener el valor de la funcion seno ingresando radiantes, ingresa el numero 1 "
+    mWrite "Si quieres obtener el valor de la funcion seno ingresando radianes, ingresa el numero 1 "
     call Crlf
     mWrite "Si quieres obtener el valor de la funcion seno ingresando grados, ingresa el numero 2 "
     call Crlf
@@ -38,6 +53,10 @@ main PROC
 error:
     call ReadInt
     .IF eax == 1
+        mWrite "Ingresa el angulo en radianes"
+        call Crlf
+        call ReadFloat
+        fstp x
         fld x
         call seno
         fst resultado
@@ -46,15 +65,20 @@ error:
         call WriteFloat
         call Crlf
     .ELSEIF eax == 2
+        mWrite "Ingresa el angulo en radianes"
+        call Crlf
+        call ReadFloat
+        fmul degreesRadians
+        fstp x
         fld x
         call seno
-        fst resultado
+        ;fst resultado
         call Crlf
         mWrite "El resultado es: "
         call WriteFloat
         call Crlf
     .ELSEIF eax == 3
-        mov ebp,30
+        mov ebp,15
         fld paso
         .WHILE ebp < pasos
             fstp x
@@ -70,7 +94,7 @@ error:
             call Crlf
             fld cero ; Estas dos para hacer al resultado 0 otra vez
             fstp resultado 
-            add ebp, 30
+            add ebp, 15
             fadd paso
         .ENDW
     .ELSE
