@@ -42,13 +42,13 @@ main PROC
 
 
     ; =============================== Bienvenida e input de usuario =====================================
-    mWrite "Hola, bienvenida al programa!  "
+    mWrite "Hola, bienvenida al programa! Elige la opción que corresponda "
     call Crlf
-    mWrite "Si quieres obtener el valor de la funcion seno ingresando radianes, ingresa el numero 1 "
+    mWrite "Ingresar radianes......................................1"
     call Crlf
-    mWrite "Si quieres obtener el valor de la funcion seno ingresando grados, ingresa el numero 2 "
+    mWrite "Ingresar grados........................................2"
     call Crlf
-    mWrite "Si quieres obtener una tabla de valores de la funcion seno, ingresa el numero 3 "
+    mWrite "Lista con pases de 15 grados...........................3"
     call Crlf
 error:
     call ReadInt
